@@ -1,0 +1,22 @@
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5431/product_service
+    username: ttsk
+    password: ttsk
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: productStockNotification:ttsk.product_service.dto.ProductStockNotification
+
+server:
+  port: 0

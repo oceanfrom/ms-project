@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5431/customer_service
+    username: ttsk
+    password: ttsk
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    jwt:
+      secret: "YW5kcmVpc29ueWFwaXRlcjIwMjVmZWI="
+      access: 2
+      refresh: 7
+
+server:
+  port: 0

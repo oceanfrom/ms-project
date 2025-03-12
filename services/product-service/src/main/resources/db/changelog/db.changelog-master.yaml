@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: v1/v1-init.sql
+      relativeToChangelogFile: true
+      context: product-service
+      author: nndrz
+  - include:
+      file: v1/v1-insert-data.sql
+      relativeToChangelogFile: true
+      context: product-service
+      author: nndrz
