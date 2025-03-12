@@ -7,6 +7,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import ttsk.api_gateway.discovery.DiscoveryChecker;
 
 import java.nio.file.AccessDeniedException;
 
@@ -15,10 +16,12 @@ import java.nio.file.AccessDeniedException;
 public class JwtGatewayFilter implements WebFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final DiscoveryChecker discoveryChecker;
 
     @Autowired
-    public JwtGatewayFilter(JwtTokenProvider jwtTokenProvider) {
+    public JwtGatewayFilter(JwtTokenProvider jwtTokenProvider, DiscoveryChecker discoveryChecker) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.discoveryChecker = discoveryChecker;
     }
 
     @Override
@@ -26,7 +29,12 @@ public class JwtGatewayFilter implements WebFilter {
         String path = exchange.getRequest().getURI().getPath();
         log.info("Request path: {}", path);
 
-        if (path.startsWith("/eureka") || path.startsWith("/api/v1/auth")) {
+        if (path.startsWith("/eureka") || path.startsWith("/api/v1/auth") || path.startsWith("/actuator")) {
+            return chain.filter(exchange);
+        }
+
+        if (!discoveryChecker.isServiceAvailable("auth-service")) {
+            log.warn("Auth-service is unavailable. Skipping JWT validation.");
             return chain.filter(exchange);
         }
 
@@ -41,7 +49,7 @@ public class JwtGatewayFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
-        log.info("JWT Token is invalid. Attempting to refresh using refresh accessToken.");
+        log.info("JWT Token is invalid. Attempting to refresh using refresh token.");
         return jwtTokenProvider.refreshAccessToken(exchange, chain);
     }
 }
